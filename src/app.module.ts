@@ -6,14 +6,14 @@ import { AuthModule } from './auth/auth.module';
 import { User } from './user/entities/user.entity';
 import { UserModule } from './user/user.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { MailModule } from './mail/mail.module';
 import './utils/env';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { join } from 'path';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
-import { FollowModule } from './follow/follow.module';
 import { Follow } from './follow/entities/follow.entity';
+// import { PostModule } from './post/post.module';
 import { PostModule } from './post/post.module';
+import { Posts } from './post/entities/post.entity';
 @Module({
   imports: [
     ConfigModule,
@@ -31,7 +31,7 @@ import { PostModule } from './post/post.module';
           username: 'postgres',
           password: '0000',
           database: 'Authdb',
-          models: [User, Follow],
+          models: [User, Follow, Posts],
           autoLoadModels: true,
         };
       },
@@ -62,7 +62,7 @@ import { PostModule } from './post/post.module';
     }),
     AuthModule,
     UserModule,
-    MailModule,
+    PostModule,
   ],
   providers: [],
 })

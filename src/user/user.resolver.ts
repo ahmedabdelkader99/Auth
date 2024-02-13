@@ -6,23 +6,15 @@ import { CurrentUser } from './decorator/current-user.decorator';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/gql-auth.guards';
 import { UserResponsesType } from 'src/utils/types/pagination.type';
-import { MailService } from 'src/mail/mail.service';
 import { UserCreateDto } from './dto/create-user.dto';
 
 @Resolver(() => User)
 export class UserResolver {
-  constructor(
-    private readonly userService: UserService,
-    private mailService: MailService,
-  ) {}
+  constructor(private readonly userService: UserService) {}
 
   @Mutation(() => User)
   createUser(@Args('createUserInput') createUserInput: CreateUserInput) {
     return this.userService.createUser(createUserInput);
-  }
-  @Mutation(() => User)
-  SendingEmail(@Args('UserCreateDto') user: UserCreateDto) {
-    return this.mailService.sendEmail(user);
   }
 
   @Query(() => UserResponsesType)

@@ -3,15 +3,10 @@ import { UserCreateDto } from 'src/user/dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { UserService } from 'src/user/user.service';
 import { User } from 'src/user/entities/user.entity';
-import { JwtPayLoad } from 'src/user/jwt/jwt-payload.interface';
-import { MailService } from 'src/mail/mail.service';
 const jwt = require('jsonwebtoken');
 @Injectable()
 export class AuthService {
-  constructor(
-    private userService: UserService,
-    private mailService: MailService,
-  ) {}
+  constructor(private userService: UserService) {}
   async register(user: UserCreateDto) {
     const { email, password } = user;
     const salt = await bcrypt.genSalt();
@@ -37,10 +32,9 @@ export class AuthService {
     if (!equal) {
       const error = new Error('Incorrect Password');
     }
-    return { token: this.generateToken(email) };
+    return { token: this.generateToken({ user: authuser }) };
   }
-  async generateToken(email: string): Promise<string> {
-    const payload: JwtPayLoad = { email };
+  async generateToken(payload): Promise<string> {
     const accessToken: string = await jwt.sign(payload, process.env.JWT_SECRET);
     return accessToken;
   }

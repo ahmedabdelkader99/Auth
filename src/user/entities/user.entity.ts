@@ -56,8 +56,6 @@ export class User extends Model<User> {
   @Field(() => [Posts], { nullable: true })
   post: Posts[];
 
-  
-
   static async paginate(page: number, limit: number) {
     return paginate<User>(this, page, limit);
   }

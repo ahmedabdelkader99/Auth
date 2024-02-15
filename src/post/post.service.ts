@@ -19,4 +19,8 @@ export class PostService {
 
     return post;
   }
+
+  async getAllPosts() {
+    return await this.postModel.findAll();
+  }
 }

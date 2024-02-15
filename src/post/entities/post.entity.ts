@@ -6,6 +6,7 @@ import {
   DataType,
   Default,
   ForeignKey,
+  HasMany,
   Model,
   PrimaryKey,
   Table,
@@ -43,4 +44,8 @@ export class Posts extends Model<Posts> {
   @Exclude({ toPlainOnly: true })
   @Field(() => User)
   user: User;
+
+  // @HasMany(() => Like)
+  // @Field(() => [Like], { nullable: true })
+  // post: Like[];
 }

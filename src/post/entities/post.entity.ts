@@ -1,11 +1,12 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { Exclude } from 'class-transformer';
 import {
-  AutoIncrement,
   BelongsTo,
   Column,
   DataType,
+  Default,
   ForeignKey,
+  HasMany,
   Model,
   PrimaryKey,
   Table,
@@ -18,9 +19,12 @@ import { User } from 'src/user/entities/user.entity';
 export class Posts extends Model<Posts> {
   @Field()
   @PrimaryKey
-  @AutoIncrement
-  @Column
-  id: number;
+  @Default(DataType.UUIDV4)
+  @Column({
+    type: DataType.UUID,
+    allowNull: false,
+  })
+  id: string;
 
   @Field()
   @Column({
@@ -39,5 +43,9 @@ export class Posts extends Model<Posts> {
   @BelongsTo(() => User)
   @Exclude({ toPlainOnly: true })
   @Field(() => User)
-  user: number;
+  user: User;
+
+  // @HasMany(() => Like)
+  // @Field(() => [Like], { nullable: true })
+  // post: Like[];
 }

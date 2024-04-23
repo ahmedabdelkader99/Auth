@@ -1,9 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { UpdatePostInput } from './dto/update-post.input';
-import { CreatePostInput } from './dto/create-post.input';
-import { User } from 'src/user/entities/user.entity';
 import { Posts } from './entities/post.entity';
 import { InjectModel } from '@nestjs/sequelize';
+import { CreatePostInput } from './entities/createPostInput';
 
 @Injectable()
 export class PostService {
@@ -11,12 +9,18 @@ export class PostService {
     @InjectModel(Posts)
     private postModel: typeof Posts,
   ) {}
-  create(createPostInput: CreatePostInput, user: User) {
+  create(createPostInput: CreatePostInput, user) {
+    console.log(user.id);
+
     const post = this.postModel.create({
       content: createPostInput.content,
       userId: user.id,
     });
 
     return post;
+  }
+
+  async getAllPosts() {
+    return await this.postModel.findAll();
   }
 }

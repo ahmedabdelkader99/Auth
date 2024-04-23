@@ -6,21 +6,29 @@ import { AuthModule } from './auth/auth.module';
 import { User } from './user/entities/user.entity';
 import { UserModule } from './user/user.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { MailModule } from './mail/mail.module';
 import './utils/env';
-import { MailerModule } from '@nestjs-modules/mailer';
-import { join } from 'path';
-import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
-import { FollowModule } from './follow/follow.module';
 import { Follow } from './follow/entities/follow.entity';
 import { PostModule } from './post/post.module';
+import { Posts } from './post/entities/post.entity';
+import { DataLoaderService } from './dataloader/dataLoader.service';
+import { DataLoaderModule } from './dataloader/dataLoader.module';
+
 @Module({
   imports: [
     ConfigModule,
     ConfigModule.forRoot({ envFilePath: '.env', isGlobal: true }),
-    GraphQLModule.forRoot<ApolloDriverConfig>({
+    GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
-      autoSchemaFile: true,
+      imports: [DataLoaderModule],
+      useFactory: (dataLoaderService: DataLoaderService) => ({
+        autoSchemaFile: true,
+        context: () => ({
+          loaders: {
+            userLoader: dataLoaderService.userLoader(),
+          },
+        }),
+      }),
+      inject: [DataLoaderService],
     }),
     SequelizeModule.forRootAsync({
       async useFactory(config: ConfigService) {
@@ -31,38 +39,16 @@ import { PostModule } from './post/post.module';
           username: 'postgres',
           password: '0000',
           database: 'Authdb',
-          models: [User, Follow],
+          models: [User, Follow, Posts],
           autoLoadModels: true,
         };
       },
     }),
-    MailerModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async (config: ConfigService) => ({
-        transport: {
-          host: config.get('EMAIL_HOST'),
-          secure: false,
-          auth: {
-            user: config.get('EMAIL_USER'),
-            pass: config.get('EMAIL_PASSWORD'),
-          },
-        },
-        defaults: {
-          from: '<sendgrid_from_email_address>',
-        },
-        template: {
-          dir: join(__dirname, './templates'),
-          adapter: new HandlebarsAdapter(),
-          options: {
-            strict: true,
-          },
-        },
-      }),
-      inject: [ConfigService],
-    }),
+
     AuthModule,
     UserModule,
-    MailModule,
+    PostModule,
+    // LikesModule,
   ],
   providers: [],
 })

@@ -1,32 +1,35 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  Int,
+  ResolveField,
+  Parent,
+} from '@nestjs/graphql';
 import { UserService } from './user.service';
 import { User } from './entities/user.entity';
 import { CreateUserInput } from './dto/create-user.input';
 import { CurrentUser } from './decorator/current-user.decorator';
 import { UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/guards/gql-auth.guards';
 import { UserResponsesType } from 'src/utils/types/pagination.type';
-import { MailService } from 'src/mail/mail.service';
-import { UserCreateDto } from './dto/create-user.dto';
+import { AuthGuard } from 'src/auth/guards/auth.guards';
+import { DataLoaderService } from 'src/dataloader/dataLoader.service';
 
 @Resolver(() => User)
 export class UserResolver {
   constructor(
     private readonly userService: UserService,
-    private mailService: MailService,
+    private readonly dataLoaderService: DataLoaderService,
   ) {}
 
   @Mutation(() => User)
   createUser(@Args('createUserInput') createUserInput: CreateUserInput) {
     return this.userService.createUser(createUserInput);
   }
-  @Mutation(() => User)
-  SendingEmail(@Args('UserCreateDto') user: UserCreateDto) {
-    return this.mailService.sendEmail(user);
-  }
 
   @Query(() => UserResponsesType)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard)
   getAllUsers(
     @CurrentUser() user,
     @Args({ name: 'limit', type: () => Int }) limit: number,
@@ -34,6 +37,7 @@ export class UserResolver {
   ) {
     return this.userService.getUsers(page, limit);
   }
+  
 }
 
 // @Mutation(() => User)
